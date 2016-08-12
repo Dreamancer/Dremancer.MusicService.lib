@@ -20,12 +20,12 @@ namespace Dremancer.MusicService.lib
       throw new NotImplementedException();
     }
 
-    public List<Record> GetRecord(string id)
+    public List<Event> GetEvents(string artistId)
     {
       throw new NotImplementedException();
     }
 
-    public List<Record> GetShows(string artistId)
+    public List<Record> GetRecord(string id)
     {
       throw new NotImplementedException();
     }

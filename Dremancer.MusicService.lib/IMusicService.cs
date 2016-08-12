@@ -33,8 +33,8 @@ namespace Dremancer.MusicService.lib
     bool HasNewRecords(string artistId); //domysliet ako toto riesit ci na strane service, alebo na strane klienta
 
     [OperationContract]
-    [WebGet(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "/Shows/{artistId}")]
-    List<Record> GetShows(string artistId);
+    [WebGet(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "/Events/{artistId}")]
+    List<Event> GetEvents(string artistId);
 
     //TODO: metoda na shows near me, vymysliet ako (uzivatelova poloha)
   } 
