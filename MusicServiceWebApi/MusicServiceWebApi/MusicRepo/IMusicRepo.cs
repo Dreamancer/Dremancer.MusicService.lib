@@ -10,7 +10,9 @@ namespace MusicServiceWebApi.MusicRepo
     {
         IEnumerable<Artist> SearchArtists(string name);
 
-        Artist GetArtist(string id);
+        Artist GetArtist(string spotifyId);
+
+        Artist GetArtist(Guid mbId);
 
         IEnumerable<Album> GetArtistAlbums(string id);
 
@@ -19,5 +21,7 @@ namespace MusicServiceWebApi.MusicRepo
         Song GetSong(string id);
 
         IEnumerable<Event> GetArtistEvents(string artistId);
+
+        void ClearTempContext(string tableName);
     }
 }

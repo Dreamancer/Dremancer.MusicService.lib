@@ -7,6 +7,8 @@ using MusicServiceWebApi.ApiWrappers;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
 using MusicServiceWebApi.DB;
+using Microsoft.EntityFrameworkCore;
+using log4net;
 
 namespace MusicServiceWebApi.MusicRepo
 {
@@ -14,6 +16,7 @@ namespace MusicServiceWebApi.MusicRepo
     {
         private readonly IDictionary<string, IMusicApiWrapper> _apis;
         private readonly MusicDbContext _dbContext = new MusicDbContext();
+        private static readonly ILog _log = LogManager.GetLogger(typeof(MusicRepo));
 
         public MusicRepo(IConfiguration configuration)
         {
@@ -21,8 +24,14 @@ namespace MusicServiceWebApi.MusicRepo
             {
                 ["Spotify"] = new SpotifyWrapper(configuration),
                 ["LastFM"] = new LastFmWrapper(configuration),
-                ["MusicBrainz"] = new MusicBrainzWrapper(configuration)
+                ["MB"] = new MusicBrainzWrapper(configuration)
             };
+        }
+
+        public void ClearTempContext(string tableName)
+        {
+            int result1 = _dbContext.Database.ExecuteSqlCommand($"delete from {tableName}");
+
         }
 
         public Album GetAlbum(string id)
@@ -30,9 +39,78 @@ namespace MusicServiceWebApi.MusicRepo
             throw new NotImplementedException();
         }
 
-        public Artist GetArtist(string id)
+        public Artist GetArtist(string spotifyId)
         {
-            throw new NotImplementedException();
+            var apiId = _dbContext.ApiIds.Where(a => a.ApiName == "Spotify" && a.ApiId == spotifyId).FirstOrDefault();
+            DbArtist dbArtist = _dbContext.Artists.Where(a => a.Id == apiId.ArtistId).Include(a=> a.ApiIds).FirstOrDefault();
+            Artist resultArtist = new Artist();
+
+            foreach (var dbApiId in dbArtist.ApiIds)
+            {
+                Artist apiArtist = GetArtist(dbApiId);
+                resultArtist.Update(apiArtist);
+            }
+
+            return resultArtist;
+        }
+
+        public Artist GetArtist(Guid mbId)
+        {
+            var apiId = _dbContext.ApiIds.Where(a => a.ApiName == "MB" && a.ApiId == mbId.ToString()).FirstOrDefault();
+            DbArtist dbArtist = _dbContext.Artists.Where(a => a.Id == apiId.ArtistId).Include(a => a.ApiIds).FirstOrDefault();
+
+            Artist resultArtist = new Artist();
+
+            foreach (var dbApiId in dbArtist.ApiIds)
+            {
+                Artist apiArtist = GetArtist(dbApiId);
+                resultArtist.Update(apiArtist);
+            }
+
+            return resultArtist;
+        }
+
+        private Artist GetArtist(DbPublicApiRelation apiId)
+        {
+            string name = apiId.ApiName;
+            Artist resultArtist = new Artist();
+            ApiResponse response = _apis[name].GetArtistInfo(apiId.ApiId).Result;
+            switch (name)
+            {
+                case "Spotify":
+                    resultArtist = new Artist
+                    {
+                        Name = response.Response["name"].Value<string>(),
+                        Genres = response.Response["genres"].Values<string>().ToList(),
+                        ApiIds = new Dictionary<string, string>()
+                    };
+                    break;
+                case "MB":
+                    resultArtist = new Artist
+                    {
+                        Name = response.Response["name"].Value<string>(),
+                        Genres = response.Response["tags"].Values<string>("name").ToList(),
+                        Info = response.Response["disambiguation"].Value<string>(),
+                        Country = response.Response["country"].Value<string>(),
+                        ApiIds = new Dictionary<string, string>()
+                    };
+                    ApiResponse lastFMresponse = _apis["LastFM"].GetArtistInfo(apiId.ApiId).Result;
+                    Artist lastFMArtist = new Artist
+                    {
+                        Name = lastFMresponse.Response["artist"].Value<string>("name"),
+                        Genres = lastFMresponse.Response["artist"]["tags"]["tag"].Values<string>("name").ToList(),
+                        Info = lastFMresponse.Response["artist"]["bio"]["content"].Value<string>(),
+                        ApiIds = new Dictionary<string, string>()
+                    };
+                    //foreach (JToken tag in lastFMresponse.Response["artist"]["tags"].Children())
+                    //{
+                    //    lastFMArtist.Genres.Add(tag["name"].Value<string>());
+                    //}
+                    resultArtist.Update(lastFMArtist);
+                    break;
+            }
+            resultArtist.ApiIds.Add(apiId.ApiName, apiId.ApiId);
+            return resultArtist;
         }
 
         public IEnumerable<Album> GetArtistAlbums(string id)
@@ -69,7 +147,7 @@ namespace MusicServiceWebApi.MusicRepo
                                     Artist newArtist = new Artist
                                     {
                                         Name = spotifyArtist["name"].Value<string>(),
-                                        Genres = spotifyArtist["genres"].Values<string>().ToArray(),
+                                        Genres = spotifyArtist["genres"].Values<string>().ToList(),
                                         ApiIds = new Dictionary<string, string>()
                                     };
                                     newArtist.ApiIds.Add(apiName, spotifyArtist["id"].Value<string>());
@@ -97,7 +175,7 @@ namespace MusicServiceWebApi.MusicRepo
                                         Artist newArtist = new Artist
                                         {
                                             Name = jsonName,
-                                            Genres = new string[] { },
+                                            Genres = new List<string>(),
                                             ApiIds = new Dictionary<string, string>()
                                         };
                                         newArtist.ApiIds.Add("MB", id);
@@ -106,13 +184,13 @@ namespace MusicServiceWebApi.MusicRepo
 
                                 }
                                 break;
-                            case "MusicBrainz":
+                            case "MB":
                                 var musicBrainzArtists = response.Response["artists"].AsEnumerable();
                                 foreach (JToken musicBrainzArtist in musicBrainzArtists)
                                 {
                                     string jsonName = musicBrainzArtist["name"].Value<string>();
                                     string id = musicBrainzArtist["id"].Value<string>();
-                                    string[] genres = musicBrainzArtist["tags"] != null ? musicBrainzArtist["tags"].Values<string>("name").ToArray() : new string[] { };
+                                    List<string> genres = musicBrainzArtist["tags"] != null ? musicBrainzArtist["tags"].Values<string>("name").ToList() : new List<string>();
 
                                     var updateArtists = artists.Where(a => a.Name == jsonName
                                         && a.ApiIds.ContainsKey("MB") && a.ApiIds["MB"] == id);
@@ -122,7 +200,7 @@ namespace MusicServiceWebApi.MusicRepo
                                         updateArtists.ToList().ForEach(
                                             a =>
                                             {
-                                                a.Genres = a.Genres.Union(genres).ToArray();
+                                                a.Genres = a.Genres.Union(genres).ToList();
                                             });
                                     }
                                     else
@@ -159,12 +237,12 @@ namespace MusicServiceWebApi.MusicRepo
                 {
                     if (artist.ApiIds != null && artist.ApiIds.Count > 0)
                     {
-                        var artistsQuery = _dbContext.Artists.Where(a => a.Name == artist.Name);
+                        var artistsQuery = _dbContext.Artists.Where(a => a.Name == artist.Name).Include(a => a.ApiIds);//for each artist we want to update get all artists from the db with the same name
                         if (artistsQuery.Count() > 0)
                         {
                             foreach (var dbArtist in artistsQuery)
                             {
-                                foreach (KeyValuePair<string, string> apiId in artist.ApiIds)
+                                foreach (KeyValuePair<string, string> apiId in artist.ApiIds)//for each of the artists from db if they are missing an api key and it can be updated, do so
                                 {
                                     if (dbArtist.ApiIds.Where(a => a.ApiName == apiId.Key && a.ApiId == apiId.Value).Count() == 0)
                                     {
@@ -180,7 +258,7 @@ namespace MusicServiceWebApi.MusicRepo
                                 }
                             }
                         }
-                        else
+                        else//if there is no artist in the db with such a name, add one
                         {
                             DbArtist dbArtist = new DbArtist
                             {

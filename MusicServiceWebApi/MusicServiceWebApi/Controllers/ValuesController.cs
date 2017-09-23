@@ -33,21 +33,21 @@ namespace MusicServiceWebApi.Controllers
         [HttpGet("search/{name}")]
         public IEnumerable<Artist> Search(string name)
         {
-            IEnumerable<Artist> artists = _repo.SearchArtists(name);
-            return artists;
-            //string result = "";
-            //foreach(Artist artist in artists)
-            //{
-            //    result += artist.ToString();
-            //}
-            //return result;
+            return _repo.SearchArtists(name);
         }
 
         // GET api/values/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        [HttpGet("artist/s/{id}")]
+        public Artist GetBySpotifyId(string id)
         {
-            return "value";
+            return _repo.GetArtist(id);
+            
+        }
+
+        [HttpGet("artist/m/{id}")]
+        public Artist GetByMbId(string id)
+        {
+            return _repo.GetArtist(Guid.Parse(id));
         }
 
         // POST api/values
@@ -66,6 +66,12 @@ namespace MusicServiceWebApi.Controllers
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
+        }
+
+        [HttpDelete("db/clear/{table}")]
+        public void ClearDb(string tableName)
+        {
+            _repo.ClearTempContext(tableName);
         }
     }
 }
