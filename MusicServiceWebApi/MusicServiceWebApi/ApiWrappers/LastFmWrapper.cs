@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using MusicWebApi.ApiWrappers.Enums;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -7,12 +8,12 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
-namespace MusicServiceWebApi.ApiWrappers
+namespace MusicWebApi.ApiWrappers
 {
     public class LastFmWrapper : MusicApiWrapper
     {
-        private static readonly string _apiName = "LastFM";
-        public override string ApiName { get { return _apiName; } }
+        private static readonly ApiName _apiName = ApiName.LastFM;
+        public override ApiName ApiName { get { return _apiName; } }
 
         public LastFmWrapper(IConfiguration configuration) : base(configuration)
         {

@@ -1,12 +1,12 @@
-﻿using MusicServiceWebApi.Models;
+﻿using MusicWebApi.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace MusicServiceWebApi.MusicRepo
+namespace MusicWebApi.MusicRepo
 {
-    interface IMusicRepo
+    interface IWebRepo
     {
         IEnumerable<Artist> SearchArtists(string name);
 
@@ -14,9 +14,11 @@ namespace MusicServiceWebApi.MusicRepo
 
         Artist GetArtist(Guid mbId);
 
-        IEnumerable<Album> GetArtistAlbums(string id);
+        IEnumerable<Album> GetArtistAlbums(int id);
 
-        Album GetAlbum(string id);
+        Album GetAlbum(string spotifyId);
+
+        Album GetAlbum(Guid mbId);
 
         Song GetSong(string id);
 

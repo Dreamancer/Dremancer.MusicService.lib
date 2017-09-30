@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using MusicWebApi.ApiWrappers.Enums;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -8,14 +9,14 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
-namespace MusicServiceWebApi.ApiWrappers
+namespace MusicWebApi.ApiWrappers
 {
     public abstract class MusicApiWrapper : IMusicApiWrapper
     {
         protected readonly string _url;
         protected readonly string _appId;
         protected readonly string _appSecret;
-        public abstract string ApiName { get; }
+        public abstract ApiName ApiName { get; }
 
         public MusicApiWrapper(IConfiguration configuration)
         {

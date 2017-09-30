@@ -8,18 +8,18 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using MusicServiceWebApi.ApiWrappers;
-using MusicServiceWebApi.MusicRepo;
-using MusicServiceWebApi.DB;
+using MusicWebApi.ApiWrappers;
+using MusicWebApi.MusicRepo;
+using MusicWebApi.DB;
 
-namespace MusicServiceWebApi
+namespace MusicWebApi
 {
     public class Startup
     {
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            using (var client = new MusicDbContext())
+            using (var client = new WebDbContext())
             {
                 client.Database.EnsureCreated();
             }
@@ -35,8 +35,9 @@ namespace MusicServiceWebApi
             services.AddTransient<IMusicApiWrapper, LastFmWrapper>();
             services.AddTransient<IMusicApiWrapper, SpotifyWrapper>();
             services.AddTransient<IMusicApiWrapper, MusicBrainzWrapper>();
-            services.AddTransient<IMusicRepo, MusicRepo.MusicRepo>();
-            services.AddEntityFrameworkSqlite().AddDbContext<MusicDbContext>();
+            services.AddTransient<IWebRepo, WebRepo>();
+            //services.AddTransient<ILocalRepo, LocalRepo>();
+            services.AddEntityFrameworkSqlite().AddDbContext<WebDbContext>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

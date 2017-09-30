@@ -11,12 +11,12 @@
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
-      "launchUrl": "api/values",
+      "launchUrl": "api/wip/",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "MusicServiceWebApi": {
+    "MusicWebApi": {
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "api/values",

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using MusicWebApi.ApiWrappers.Enums;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -10,12 +11,12 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MusicServiceWebApi.ApiWrappers
+namespace MusicWebApi.ApiWrappers
 {
     public class SpotifyWrapper : MusicApiWrapper
     {
-        private static readonly string _apiName = "Spotify";
-        public override string ApiName { get { return _apiName; } }
+        private static readonly ApiName _apiName = ApiName.Spotify;
+        public override ApiName ApiName { get { return _apiName; } }
 
         public SpotifyWrapper(IConfiguration configuration) : base(configuration)
         {

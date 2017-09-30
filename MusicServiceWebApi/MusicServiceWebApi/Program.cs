@@ -10,8 +10,9 @@ using Microsoft.Extensions.Logging;
 using log4net;
 using System.Reflection;
 using log4net.Config;
+using System.Net;
 
-namespace MusicServiceWebApi
+namespace MusicWebApi
 {
     public class Program
     {
@@ -25,6 +26,12 @@ namespace MusicServiceWebApi
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>()
+                .UseKestrel(
+                    options =>
+                    {
+                        options.Listen(IPAddress.Any, 5000);
+                    }
+                )
                 .Build();
     }
 }

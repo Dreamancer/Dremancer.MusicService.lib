@@ -6,13 +6,14 @@ using Newtonsoft.Json.Linq;
 using Microsoft.Extensions.Configuration;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using MusicWebApi.ApiWrappers.Enums;
 
-namespace MusicServiceWebApi.ApiWrappers
+namespace MusicWebApi.ApiWrappers
 {
     public class MusicBrainzWrapper : MusicApiWrapper
     {
-        private static readonly string _apiName = "MusicBrainz";
-        public override string ApiName { get { return _apiName; } }
+        private static readonly ApiName _apiName = ApiName.MusicBrainz;
+        public override ApiName ApiName { get { return _apiName; } }
 
         public MusicBrainzWrapper(IConfiguration configuration) : base(configuration)
         {

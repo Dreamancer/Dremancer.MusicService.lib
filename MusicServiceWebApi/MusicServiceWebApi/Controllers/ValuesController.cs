@@ -4,31 +4,31 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using MusicServiceWebApi.ApiWrappers;
+using MusicWebApi.ApiWrappers;
 using Newtonsoft.Json.Linq;
-using MusicServiceWebApi.MusicRepo;
-using MusicServiceWebApi.Models;
+using MusicWebApi.MusicRepo;
+using MusicWebApi.Models;
 
-namespace MusicServiceWebApi.Controllers
+namespace MusicWebApi.Controllers
 {
-    [Route("api/[controller]")]
-    public class ValuesController : Controller
+    [Route("api/wip/")]
+    public class SimpleController : Controller
     {
         private readonly IConfiguration _config;
-        private readonly IMusicRepo _repo;
+        private readonly IWebRepo _repo;
 
-        public ValuesController(IConfiguration config)
+        public SimpleController(IConfiguration config)
         {
             _config = config;
-            _repo = new MusicRepo.MusicRepo(config);
+            _repo = new WebRepo(config);
         }
 
         // GET api/values
-        [HttpGet]
-        public IEnumerable<string> Get()
-        {
-            return new string[] { "value1", "value2" };
-        }
+        //[HttpGet]
+        //public IEnumerable<string> Get()
+        //{
+        //    return new string[] { "value1", "value2" };
+        //}
 
         [HttpGet("search/{name}")]
         public IEnumerable<Artist> Search(string name)
@@ -50,28 +50,22 @@ namespace MusicServiceWebApi.Controllers
             return _repo.GetArtist(Guid.Parse(id));
         }
 
-        // POST api/values
-        [HttpPost]
-        public void Post([FromBody]string value)
-        {
-        }
+        //// POST api/values
+        //[HttpPost]
+        //public void Post([FromBody]string value)
+        //{
+        //}
 
-        // PUT api/values/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody]string value)
-        {
-        }
+        //// PUT api/values/5
+        //[HttpPut("{id}")]
+        //public void Put(int id, [FromBody]string value)
+        //{
+        //}
 
-        // DELETE api/values/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
-
-        [HttpDelete("db/clear/{table}")]
-        public void ClearDb(string tableName)
-        {
-            _repo.ClearTempContext(tableName);
-        }
+        //// DELETE api/values/5
+        //[HttpDelete("{id}")]
+        //public void Delete(int id)
+        //{
+        //}
     }
 }
