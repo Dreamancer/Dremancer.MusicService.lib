@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 
 namespace MusicWebApi.ApiWrappers
 {
-    interface IMusicApiWrapper
-    {
+  interface IMusicApiWrapper
+  {
     Task<ApiResponse> SearchArtists(string name);
 
     Task<ApiResponse> GetArtistInfo(string id);
@@ -20,5 +20,5 @@ namespace MusicWebApi.ApiWrappers
     Task<ApiResponse> GetSongInfo(string id);
 
     Task<ApiResponse> GetArtistEvents(string artistId);
-    }
+  }
 }

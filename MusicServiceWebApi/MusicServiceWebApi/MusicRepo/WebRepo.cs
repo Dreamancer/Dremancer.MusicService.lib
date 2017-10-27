@@ -250,7 +250,7 @@ namespace MusicWebApi.MusicRepo
             }
             List<Artist> dbUpdate = new List<Artist>(artists);
             Task.Run(() => UpdateDbArtists(dbUpdate));
-            artists = artists.OrderBy(a => DreamancerHelper.LevenshteinDistance(a.Name.ToLower(), name.ToLower())).ThenByDescending(a => a.Genres.Count).ToList();
+            artists = artists.OrderBy(a => WordDistanceHelper.LevenshteinDistance(a.Name.ToLower(), name.ToLower())).ThenByDescending(a => a.Genres.Count).ToList();
             return artists;
         }
 

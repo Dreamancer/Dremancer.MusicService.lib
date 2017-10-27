@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace MusicWebApi.Helpers
 {
-    public static class DreamancerHelper
+    public static class WordDistanceHelper
     {
         /// <summary>
         /// Computes the Damerau-Levenshtein Distance between two strings, represented as arrays of
